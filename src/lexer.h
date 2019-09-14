@@ -40,7 +40,7 @@ class Lexer {
                     alpStr += lastChar;
                     lastChar = getNextChar(iFile);
                 }
-                if (alpStr == 'def'){
+                if (alpStr == "def"){
                     return tok_def;
                 }else {
                     return tok_identifier;
