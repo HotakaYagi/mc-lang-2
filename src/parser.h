@@ -168,26 +168,41 @@ static std::unique_ptr<ExprAST> ParseParenExpr() {
 // 引数の参照である場合はVariableExprASTを返し、関数呼び出しの場合は
 // CallExprASTを返す。
 static std::unique_ptr<ExprAST> ParseIdentifierExpr() {
-    return nullptr;
     // 1. getIdentifierを用いて識別子を取得する。
-
+    std::string identifierStr = lexer.getIdentifier();
     // 2. トークンを次に進める。
-
+    getNextToken();
     // 3. 次のトークンが'('の場合は関数呼び出し。そうでない場合は、
     // VariableExprASTを識別子を入れてインスタンス化し返す。
-
+    if (CurTok == '('){   
+    // calling function 
+    }else{
+        std::unique_ptr<ExprAST> ExpAST (new VariableExprAST(identifierStr));
+        return ExpAST;
+    }
+            
     // 4. '('を読んでトークンを次に進める。
-
+    getNextToken();
     // 5. 関数fooの呼び出しfoo(3,4,5)の()内をパースする。
     // 引数は数値、二項演算子、(親関数で定義された)引数である可能性があるので、
     // ParseExpressionを用いる。
     // 呼び出しが終わるまで(CurTok == ')'になるまで)引数をパースしていき、都度argsにpush_backする。
     // 呼び出しの終わりと引数同士の区切りはCurTokが')'であるか','であるかで判別できることに注意。
+
     std::vector<std::unique_ptr<ExprAST>> args;
+    while(CurTok != ')'){
+        auto arg = ParseExpression();
+        args.push_back(std::move(arg));
+        if (CurTok == ',' ){ 
+            getNextToken();
+        }
+    }
 
     // 6. トークンを次に進める。
-
+    getNextToken();
     // 7. CallExprASTを構成し、返す。
+    std::unique_ptr<ExprAST> ExpAST (new CallExprAST(identifierStr,std::move(args)));
+    return ExpAST;
 }
 
 // ParsePrimary - NumberASTか括弧をパースする関数
@@ -251,7 +266,40 @@ static std::unique_ptr<PrototypeAST> ParsePrototype() {
     // 2.2とほぼ同じ。CallExprASTではなくPrototypeASTを返し、
     // 引数同士の区切りが','ではなくgetNextToken()を呼ぶと直ぐに
     // CurTokに次の引数(もしくは')')が入るという違いのみ。
-    return nullptr;
+    
+    // 1. getIdentifierを用いて識別子を取得する。
+    std::string identifierStr = lexer.getIdentifier();
+    // 2. トークンを次に進める。
+    getNextToken();
+    // 3. 次のトークンが'('の場合は関数呼び出し。そうでない場合は、
+    // VariableExprASTを識別子を入れてインスタンス化し返す。
+    if (CurTok == '('){   
+    // calling function 
+    }else{
+        //std::unique_ptr<ExprAST> ExpAST (new VariableExprAST(identifierStr));
+        return nullptr;
+    }
+            
+    // 4. '('を読んでトークンを次に進める。
+    getNextToken();
+    // 5. 関数fooの呼び出しfoo(3,4,5)の()内をパースする。
+    // 引数は数値、二項演算子、(親関数で定義された)引数である可能性があるので、
+    // ParseExpressionを用いる。
+    // 呼び出しが終わるまで(CurTok == ')'になるまで)引数をパースしていき、都度argsにpush_backする。
+    // 呼び出しの終わりと引数同士の区切りはCurTokが')'であるか','であるかで判別できることに注意。
+
+    std::vector<std::string> args;
+    while(CurTok != ')'){
+        std::string arg = lexer.getIdentifier();
+        args.push_back(arg);
+        getNextToken();
+    }
+
+    // 6. トークンを次に進める。
+    getNextToken();
+
+    // 7. CallExprASTを構成し、返す。
+    return llvm::make_unique<PrototypeAST>(identifierStr, std::move(args));
 }
 
 static std::unique_ptr<FunctionAST> ParseDefinition() {

@@ -43,6 +43,7 @@ class Lexer {
                 if (alpStr == "def"){
                     return tok_def;
                 }else {
+                    setIdentifier(alpStr);
                     return tok_identifier;
                 }
             }

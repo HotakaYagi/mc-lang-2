@@ -31,6 +31,9 @@ Value *LogErrorV(const char *str) {
 
 // TODO 2.4: 引数のcodegenを実装してみよう
 Value *VariableExprAST::codegen() {
+    if (NamedValues.count(VariableExprAST::variableName) == 1){
+        return NamedValues[VariableExprAST::variableName];
+    }
     return nullptr;
     // NamedValuesの中にVariableExprAST::NameとマッチするValueがあるかチェックし、
     // あったらそのValueを返す。
