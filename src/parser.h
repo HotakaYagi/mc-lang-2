@@ -138,6 +138,22 @@ static std::unique_ptr<ExprAST> ParseNumberExpr() {
     return std::move(Result);
 }
 
+static std::unique_ptr<ExprAST> ParseNumberNeg(){
+    getNextToken(); //eat -
+    printf("%d\n",CurTok);
+    auto RHS = ParseExpression();
+    if (!RHS){
+        return nullptr;
+    }
+    //if (CurTok == -4){
+        std::unique_ptr<ExprAST> lhs = 0;
+        return llvm::make_unique<BinaryAST>('-', std::move(lhs), std::move(RHS));
+    //}else{
+    //    printf("%d",CurTok);
+    //    return nullptr;
+    //}
+}
+
 // TODO 1.5: 括弧を実装してみよう
 // 括弧は`'(' ExprAST ')'`の形で表されます。最初の'('を読んだ後、次のトークンは
 // ExprAST(NumberAST or BinaryAST)のはずなのでそれをパースし、最後に')'で有ることを
@@ -216,6 +232,8 @@ static std::unique_ptr<ExprAST> ParsePrimary() {
             return ParseNumberExpr();
         case '(':
             return ParseParenExpr();
+        case '-':
+            return ParseNumberNeg();
     }
 }
 
